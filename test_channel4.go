@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"time"
+	// "time"
 )
 
 func main() {
@@ -60,35 +60,74 @@ func main() {
 	// // n := <-ch1
 	// fmt.Println(len(ch1), cap(ch1))
 
-	go sayHello()
-	go test()
+	// go sayHello()
+	// go test()
 
-	for i := 0; i < 10; i++ {
-		fmt.Println("main() ok=", i)
-		time.Sleep(time.Second)
-	}
-}
+	// for i := 0; i < 10; i++ {
+	// 	fmt.Println("main() ok=", i)
+	// 	time.Sleep(time.Second)
+	// }
 
-//函数
-func sayHello() {
-	for i := 0; i < 10; i++ {
-		time.Sleep(time.Second)
-		fmt.Println("hello,world")
-	}
-}
+	// 声明一个万能类型的channel
+	// 根据以前学到的 万能类型 ==== interface{}
+	// 1、声明
+	var allCh chan interface{}
+	// 2、初始化
+	allCh = make(chan interface{}, 3)
+	// 3、 赋值
 
-//函数
-func test() {
-	//这里我们可以使用defer + recover
-	defer func() {
-		//捕获test抛出的panic
-		if err := recover(); err != nil {
-			fmt.Println("test() 发生错误", err)
+	allCh <- 1
+	allCh <- "hello"
+	allCh <- 1.222
+
+	// 写完了就及时关闭它
+	close(allCh)
+
+	// for {
+	// 	a, ok := <-allCh
+	// 	if !ok {
+	// 		break
+	// 	}
+	// 	fmt.Println(a)
+	// }
+
+	// 这个时候想要取channel的中的类型的话，就需要用到断言。
+	for {
+		a, ok := <-allCh
+		if !ok {
+			break
 		}
-	}()
-	//定义了一个map
-	var myMap map[int]string
-	// myMap = make(map[int]string)
-	myMap[0] = "golang" //error
-	fmt.Println(myMap)
+		switch a.(type) {
+		case int:
+			fmt.Println(a, "type=int")
+		case string:
+			fmt.Println(a, "type=string")
+		case float64:
+			fmt.Println(a, "type=float64")
+		}
+	}
 }
+
+// //函数
+// func sayHello() {
+// 	for i := 0; i < 10; i++ {
+// 		time.Sleep(time.Second)
+// 		fmt.Println("hello,world")
+// 	}
+// }
+
+// //函数
+// func test() {
+// 	//这里我们可以使用defer + recover
+// 	defer func() {
+// 		//捕获test抛出的panic
+// 		if err := recover(); err != nil {
+// 			fmt.Println("test() 发生错误", err)
+// 		}
+// 	}()
+// 	//定义了一个map
+// 	var myMap map[int]string
+// 	// myMap = make(map[int]string)
+// 	myMap[0] = "golang" //error
+// 	fmt.Println(myMap)
+// }
